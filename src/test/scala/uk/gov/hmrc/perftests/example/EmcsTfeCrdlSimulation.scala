@@ -17,12 +17,10 @@
 package uk.gov.hmrc.perftests.example
 
 import io.gatling.core.Predef._
-import io.gatling.core.action.builder.PauseBuilder
 import uk.gov.hmrc.performance.conf.ServicesConfiguration
 import uk.gov.hmrc.performance.simulation.PerformanceTestRunner
 import uk.gov.hmrc.perftests.example.EmcsTfeCrdlRequests._
 
-import scala.concurrent.duration._
 import scala.util.Random
 
 class EmcsTfeCrdlSimulation extends PerformanceTestRunner with ServicesConfiguration {
@@ -129,8 +127,6 @@ class EmcsTfeCrdlSimulation extends PerformanceTestRunner with ServicesConfigura
     }
   }
 
-  val pause = new PauseBuilder(1.second, None)
-  
   setup("fetch-cn-info", "Fetch CN Code Information")
     .withActions(randomIdFeeder.actionBuilders: _*)
     .withActions(cnInfoFeeder.actionBuilders: _*)
