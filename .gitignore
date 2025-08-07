@@ -10,19 +10,22 @@ logs
 .history
 
 # IDE files
-/.bsp
-/.idea
-/*.iml
-/*.ipr
+.bloop/
+.bsp/
+.idea/
+.metals/
+.vscode/
+*.iml
+*.ipr
 *.iws
-/.idea_modules
+.idea_modules/
 eclipse
 .scala_dependencies
+metals.sbt
 
 # sbt files
-dist
-target
-lib_managed
+dist/
+target/
+lib_managed/
 src_managed/
-project/project
-project/target
+project/project/
