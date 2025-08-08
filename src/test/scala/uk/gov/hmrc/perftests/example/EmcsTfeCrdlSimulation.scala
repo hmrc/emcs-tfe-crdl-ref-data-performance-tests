@@ -24,9 +24,10 @@ import uk.gov.hmrc.perftests.example.EmcsTfeCrdlRequests._
 import scala.util.Random
 
 class EmcsTfeCrdlSimulation extends PerformanceTestRunner with ServicesConfiguration {
-
-  val crdlCacheUrl   = s"${baseUrlFor("crdl-cache")}/crdl-cache"
-  val emcsRefDataUrl = s"${baseUrlFor("emcs-tfe-crdl-reference-data")}/emcs-tfe-reference-data"
+  val internalAuthUrl = s"${baseUrlFor("internal-auth")}"
+  val crdlCacheUrl    = s"${baseUrlFor("crdl-cache")}/crdl-cache"
+  val emcsRefDataUrl  = s"${baseUrlFor("emcs-tfe-crdl-reference-data")}/emcs-tfe-reference-data"
+  val internalAuthToken = if (runLocal) "crdl-cache-token" else sys.env("INTERNAL_AUTH_TOKEN")
 
   val randomNumbers = LazyList.continually {
     "0123456789".charAt(Random.nextInt(10))
@@ -73,6 +74,34 @@ class EmcsTfeCrdlSimulation extends PerformanceTestRunner with ServicesConfigura
 
   // Random lists of CN information requests for the CN code information endpoint
   def cnInfoFeeder = feed(randomCnInfo)
+
+  def internalAuthTokenExists() = {
+    requests
+      .get(
+        s"$internalAuthUrl/test-only/token",
+        headers = Map("Authorization" -> internalAuthToken),
+        check = false
+      )
+      .statusCode == 200
+  }
+
+  def createInternalAuthToken() = {
+    requests.post(
+      s"$internalAuthUrl/test-only/token",
+      headers = Map("Content-Type" -> "application/json"),
+      data = ujson.Obj(
+        "token"     -> internalAuthToken,
+        "principal" -> "performance-jenkins",
+        "permissions" -> ujson.Arr(
+          ujson.Obj(
+            "resourceType"     -> "crdl-cache",
+            "resourceLocation" -> "*",
+            "actions"          -> ujson.Arr("READ")
+          )
+        )
+      )
+    )
+  }
 
   def deleteCrdlData(entity: String) =
     requests.delete(s"$crdlCacheUrl/test-only/$entity")
@@ -124,52 +153,55 @@ class EmcsTfeCrdlSimulation extends PerformanceTestRunner with ServicesConfigura
       while (getTfeImportStatus() != "IDLE") {
         Thread.sleep(200)
       }
+      if (!internalAuthTokenExists()) {
+        createInternalAuthToken()
+      }
     }
   }
 
   setup("fetch-cn-info", "Fetch CN Code Information")
     .withActions(randomIdFeeder.actionBuilders: _*)
     .withActions(cnInfoFeeder.actionBuilders: _*)
-    .withActions(fetchAuthToken, fetchCnCodeInformation)
+    .withRequests(fetchAuthToken, fetchCnCodeInformation)
 
   setup("fetch-excise-products", "Fetch Excise Products")
     .withActions(randomIdFeeder.actionBuilders: _*)
-    .withActions(fetchAuthToken, fetchAllEPCCodes)
+    .withRequests(fetchAuthToken, fetchAllEPCCodes)
 
   setup("fetch-packaging-types", "Fetch Packaging Types")
     .withActions(randomIdFeeder.actionBuilders: _*)
-    .withActions(fetchAuthToken, fetchAllPackagingTypes)
+    .withRequests(fetchAuthToken, fetchAllPackagingTypes)
 
   setup("fetch-member-states", "Fetch Member States")
     .withActions(randomIdFeeder.actionBuilders: _*)
-    .withActions(fetchAuthToken, fetchMemberStates)
+    .withRequests(fetchAuthToken, fetchMemberStates)
 
   setup("fetch-countable-packaging-types", "Fetch Countable Packaging Types")
     .withActions(randomIdFeeder.actionBuilders: _*)
-    .withActions(fetchAuthToken, fetchCountablePackagingTypes)
+    .withRequests(fetchAuthToken, fetchCountablePackagingTypes)
 
   setup("fetch-document-types", "Fetch Document Types")
     .withActions(randomIdFeeder.actionBuilders: _*)
-    .withActions(fetchAuthToken, fetchDocumentTypes)
+    .withRequests(fetchAuthToken, fetchDocumentTypes)
 
   setup("fetch-cn-codes", "Fetch CN Codes For Excise Product")
     .withActions(exciseProductsFeeder.actionBuilders: _*)
     .withActions(randomIdFeeder.actionBuilders: _*)
-    .withActions(fetchAuthToken, fetchCnCodes)
+    .withRequests(fetchAuthToken, fetchCnCodes)
 
   setup("fetch-specified-packaging-types", "Fetch Specified Packaging Types")
     .withActions(packagingTypesFeeder.actionBuilders: _*)
     .withActions(randomIdFeeder.actionBuilders: _*)
-    .withActions(fetchAuthToken, fetchSpecifiedPackagingTypes)
+    .withRequests(fetchAuthToken, fetchSpecifiedPackagingTypes)
 
   setup("fetch-specified-wine-operations", "Fetch Specified Wine Operations")
     .withActions(wineOperationsFeeder.actionBuilders: _*)
     .withActions(randomIdFeeder.actionBuilders: _*)
-    .withActions(fetchAuthToken, fetchSpecifiedWineOperations)
+    .withRequests(fetchAuthToken, fetchSpecifiedWineOperations)
 
   setup("fetch-member-states-and-countries", "Fetch Member States And Countries")
     .withActions(randomIdFeeder.actionBuilders: _*)
-    .withActions(fetchAuthToken, fetchMemberStatesAndCountries)
+    .withRequests(fetchAuthToken, fetchMemberStatesAndCountries)
 
   runSimulation()
 }
