@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.perftests.example
+package uk.gov.hmrc.perftests.refdata
 
 import io.gatling.core.Predef._
 import uk.gov.hmrc.performance.conf.ServicesConfiguration
 import uk.gov.hmrc.performance.simulation.PerformanceTestRunner
-import uk.gov.hmrc.perftests.example.EmcsTfeCrdlRequests._
+import uk.gov.hmrc.perftests.refdata.EmcsTfeCrdlRequests._
 
 import scala.util.Random
 
