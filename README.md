@@ -9,7 +9,7 @@ Performance test suite for the `EMCS TFE CRDL Reference Data`, using [performanc
 Start Mongo Docker container following instructions from the [MDTP Handbook](https://docs.tax.service.gov.uk/mdtp-handbook/documentation/developer-set-up/set-up-mongodb.html).
 
 ```bash
-docker run --rm -d -p 27017:27017 --name mongo percona/percona-server-mongodb:6.0
+docker run --rm -d -p 27017:27017 --name mongo percona/percona-server-mongodb:7.0
 ```
 Start `Reference Data` services as follows:
 
