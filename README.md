@@ -1,8 +1,6 @@
-**This is a template README.md.  Be sure to update this with project specific content that describes your performance test project.**
-
 # emcs-tfe-crdl-ref-data-performance-tests
 
-Performance test suite for the `<digital service name>`, using [performance-test-runner](https://github.com/hmrc/performance-test-runner) under the hood.
+Performance test suite for the `EMCS TFE CRDL Reference Data`, using [performance-test-runner](https://github.com/hmrc/performance-test-runner) under the hood.
 
 ## Pre-requisites
 
@@ -10,12 +8,14 @@ Performance test suite for the `<digital service name>`, using [performance-test
 
 Start Mongo Docker container following instructions from the [MDTP Handbook](https://docs.tax.service.gov.uk/mdtp-handbook/documentation/developer-set-up/set-up-mongodb.html).
 
-Start `PLATFORM_TEST_EXAMPLE_UI_JOURNEY_TESTS` services as follows:
+```bash
+docker run --rm -d -p 27017:27017 --name mongo percona/percona-server-mongodb:7.0
+```
+Start `Reference Data` services as follows:
 
 ```bash
-sm2 --start PLATFORM_TEST_EXAMPLE_UI_JOURNEY_TESTS
+sm2 --start EMCS_TFE_CRDL
 ```
-
 ### Logging
 
 The default log level for all HTTP requests is set to `WARN`. Configure [logback.xml](src/test/resources/logback.xml) to update this if required.
